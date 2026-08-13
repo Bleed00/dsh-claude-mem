@@ -1,6 +1,6 @@
 {
   "name": "@bleed00/dsh-claude-mem",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "A DeepSeek Harness plugin that integrates claude-mem: query, context injection, manual save, and session lifecycle over a local claude-mem worker's HTTP API",
   "keywords": [
     "dsh-plugin",
