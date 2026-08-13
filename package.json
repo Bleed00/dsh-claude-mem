@@ -1,5 +1,5 @@
 {
-  "name": "dsh-claude-mem",
+  "name": "@bleed00/dsh-claude-mem",
   "version": "0.1.0",
   "description": "A DeepSeek Harness plugin that integrates claude-mem: query, context injection, manual save, and session lifecycle over a local claude-mem worker's HTTP API",
   "keywords": [
@@ -9,6 +9,14 @@
     "deepseek-harness"
   ],
   "license": "Apache-2.0",
+  "author": "Bleed00",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Bleed00/dsh-claude-mem.git"
+  },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

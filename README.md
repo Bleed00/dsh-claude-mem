@@ -12,6 +12,12 @@ From a git checkout on the local machine:
 dsh plugin --profile demo add ./dsh-claude-mem
 ```
 
+From npm (recommended — ships prebuilt `lib/`, no build permission needed):
+
+```sh
+dsh plugin --profile demo add @bleed00/dsh-claude-mem
+```
+
 From GitHub:
 
 ```sh
@@ -22,7 +28,7 @@ A GitHub install fetches sources, not build output, so pnpm runs this package's 
 
 ```yaml
 allowBuilds:
-  dsh-claude-mem: true
+  '@bleed00/dsh-claude-mem': true
 ```
 
 then re-run the `add`. Treat that allowance as permission to run this package's code at install time; pin a commit for reproducible installs:

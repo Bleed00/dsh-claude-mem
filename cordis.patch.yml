@@ -6,7 +6,7 @@
 
 - insert:
     - id: claude-mem
-      name: dsh-claude-mem
+      name: '@bleed00/dsh-claude-mem'
       config:
         timeoutMs: 30000
         injectContext: true
