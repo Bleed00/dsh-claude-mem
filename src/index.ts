@@ -105,5 +105,3 @@ function assertPositiveInteger(field: string, value: number): void {
     throw new Error(`claude-mem: ${field} must be a positive integer`)
   }
 }
-
-export default apply
