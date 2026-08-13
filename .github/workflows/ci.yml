@@ -16,6 +16,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      - run: pnpm install
+      # The plugin is a dsh bundle: its peerDependencies (dsh-tools, dsh-llm,
+      # dsh-agent, …) are supplied by the host dsh installation, never installed
+      # standalone. Disabling auto-install-peers mirrors the real profile install
+      # and avoids resolving not-yet-published transitive peers (dsh-type-meta).
+      - run: pnpm install --config.auto-install-peers=false
       - run: pnpm run build
       - run: pnpm test
