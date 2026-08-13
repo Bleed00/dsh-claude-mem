@@ -17,6 +17,13 @@
     "type": "git",
     "url": "https://github.com/Bleed00/dsh-claude-mem.git"
   },
+  "bugs": {
+    "url": "https://github.com/Bleed00/dsh-claude-mem/issues"
+  },
+  "homepage": "https://github.com/Bleed00/dsh-claude-mem#readme",
+  "engines": {
+    "node": ">=20.12.0"
+  },
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",
@@ -35,20 +42,20 @@
     "test": "vitest run"
   },
   "peerDependencies": {
-    "@deepseek-ai/cordis": ">=0.0.0",
-    "@deepseek-ai/dsh-agent": ">=0.0.0",
-    "@deepseek-ai/dsh-llm": ">=0.0.0",
-    "@deepseek-ai/dsh-skill": ">=0.0.0",
-    "@deepseek-ai/dsh-tools": ">=0.0.0",
-    "@deepseek-ai/schemastery": ">=0.0.0"
+    "@deepseek-ai/cordis": ">=4.0.0",
+    "@deepseek-ai/dsh-agent": ">=0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": ">=0.0.1-rc.1",
+    "@deepseek-ai/dsh-skill": ">=0.0.1-rc.1",
+    "@deepseek-ai/dsh-tools": ">=0.0.1-rc.1",
+    "@deepseek-ai/schemastery": ">=3.18.0"
   },
   "devDependencies": {
-    "@deepseek-ai/cordis": ">=0.0.0",
-    "@deepseek-ai/dsh-agent": ">=0.0.0",
-    "@deepseek-ai/dsh-llm": ">=0.0.0",
-    "@deepseek-ai/dsh-skill": ">=0.0.0",
-    "@deepseek-ai/dsh-tools": ">=0.0.0",
-    "@deepseek-ai/schemastery": ">=0.0.0",
+    "@deepseek-ai/cordis": "^4.0.1",
+    "@deepseek-ai/dsh-agent": "^0.1.0-rc.6",
+    "@deepseek-ai/dsh-llm": "^0.0.1-rc.1",
+    "@deepseek-ai/dsh-skill": "^0.0.1-rc.1",
+    "@deepseek-ai/dsh-tools": "^0.0.1-rc.1",
+    "@deepseek-ai/schemastery": "^3.18.1",
     "@types/node": "^26.2.0",
     "tsdown": "^0.22.0",
     "typescript": "^6.0.0",
