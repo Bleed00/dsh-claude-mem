@@ -1,0 +1,14 @@
+# dsh-claude-mem bundle patch: mount the claude-mem integration over dsh-base.
+# The single plugin row registers the worker client, the model-facing memory
+# tools plus the mem-search skill, and the lifecycle hooks. Injections and
+# ingestion/summarization are opt-in (off here), so a plain install is
+# read-only against existing memory; patch this row to enable them.
+
+- insert:
+    - id: claude-mem
+      name: dsh-claude-mem
+      config:
+        timeoutMs: 30000
+        injectContext: true
+        ingest: false
+        summarize: false

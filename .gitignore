@@ -1,0 +1,6 @@
+node_modules/
+lib/
+*.tgz
+.tsbuildinfo
+pnpm-lock.yaml
+pnpm-workspace.yaml
