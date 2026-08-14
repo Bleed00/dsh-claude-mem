@@ -68,4 +68,47 @@ describe('WorkerClient.getObservations', () => {
     const client = new WorkerClient(limits)
     await expect(client.getObservations({ ids: [] })).rejects.toMatchObject({ code: 'MEM_INVALID_REQUEST' })
   })
+
+  it('decodes JSON-string list/object fields for parity with the raw API', async () => {
+    stubFetch([{
+      id: 650,
+      title: 'nine',
+      narrative: 'full',
+      facts: '["a","b"]',
+      concepts: '[]',
+      files_read: '["x.c"]',
+      files_modified: '[]',
+      metadata: '{"kind":"architecture"}',
+      created_at: '2026-08-02T14:03:15.937Z',
+      created_at_epoch: 1785679395937,
+      memory_session_id: 'manual-VCU',
+      subtitle: 'Manual memory',
+      content_hash: 'abc123',
+    }])
+    const client = new WorkerClient(limits)
+    const result = await client.getObservations({ ids: [650] })
+    expect(result.items[0]).toMatchObject({
+      id: 650,
+      title: 'nine',
+      narrative: 'full',
+      facts: ['a', 'b'],
+      concepts: [],
+      filesRead: ['x.c'],
+      filesModified: [],
+      metadata: { kind: 'architecture' },
+      createdAt: '2026-08-02T14:03:15.937Z',
+      createdAtEpoch: 1785679395937,
+      memorySessionId: 'manual-VCU',
+      subtitle: 'Manual memory',
+      contentHash: 'abc123',
+    })
+  })
+
+  it('drops a non-JSON list string rather than leaking the raw string', async () => {
+    stubFetch([{ id: 650, title: 'nine', facts: 'not-json', concepts: '[]' }])
+    const client = new WorkerClient(limits)
+    const result = await client.getObservations({ ids: [650] })
+    expect(result.items[0].concepts).toEqual([])
+    expect(result.items[0].facts).toBeUndefined()
+  })
 })

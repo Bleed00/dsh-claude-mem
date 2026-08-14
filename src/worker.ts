@@ -209,15 +209,80 @@ function asObservation(value: unknown): MemObservation {
   return {
     id,
     title: typeof record.title === 'string' ? record.title : '',
-    ...typeof record.type === 'string' ? { type: record.type } : {},
-    ...typeof record.project === 'string' ? { project: record.project } : {},
+    ...optionalString(record.memory_session_id, 'memorySessionId'),
+    ...optionalString(record.type, 'type'),
+    ...optionalString(record.project, 'project'),
+    ...optionalString(record.subtitle, 'subtitle'),
+    ...optionalString(record.text, 'text'),
+    ...optionalString(record.narrative, 'narrative'),
+    ...optionalStringArray(record.facts, 'facts'),
+    ...optionalStringArray(record.concepts, 'concepts'),
+    ...optionalStringArray(record.files_read, 'filesRead'),
+    ...optionalStringArray(record.files_modified, 'filesModified'),
+    ...optionalObject(record.metadata, 'metadata'),
+    ...optionalString(record.created_at, 'createdAt'),
     ...typeof record.created_at_epoch === 'number'
       ? { createdAtEpoch: record.created_at_epoch }
       : typeof record.createdAtEpoch === 'number' ? { createdAtEpoch: record.createdAtEpoch } : {},
-    ...typeof record.narrative === 'string' ? { narrative: record.narrative } : {},
-    ...Array.isArray(record.concepts) ? { concepts: record.concepts.filter((c): c is string => typeof c === 'string') } : {},
-    ...Array.isArray(record.files) ? { files: record.files.filter((f): f is string => typeof f === 'string') } : {},
+    ...typeof record.prompt_number === 'number' ? { promptNumber: record.prompt_number } : {},
+    ...typeof record.discovery_tokens === 'number' ? { discoveryTokens: record.discovery_tokens } : {},
+    ...optionalString(record.content_hash, 'contentHash'),
+    ...optionalString(record.generated_by_model, 'generatedByModel'),
+    ...typeof record.relevance_count === 'number' ? { relevanceCount: record.relevance_count } : {},
+    ...optionalString(record.merged_into_project, 'mergedIntoProject'),
+    ...optionalString(record.agent_type, 'agentType'),
+    ...optionalString(record.agent_id, 'agentId'),
+    ...typeof record.synced_at === 'number' ? { syncedAt: record.synced_at } : {},
+    ...optionalString(record.origin_device_id, 'originDeviceId'),
+    ...optionalString(record.origin_local_id, 'originLocalId'),
+    ...optionalString(record.sync_rev, 'syncRev'),
   }
+}
+
+function optionalString(value: unknown, key: string): Record<string, string> {
+  return typeof value === 'string' ? { [key]: value } : {}
+}
+
+/**
+ * The worker encodes list fields (`facts`, `concepts`, `files_read`,
+ * `files_modified`) as JSON arrays inside strings (e.g. `"[]"`). Decode them to
+ * real arrays for parity with a human reading the raw API response.
+ */
+function optionalStringArray(value: unknown, key: string): Record<string, readonly string[]> {
+  if (Array.isArray(value)) {
+    const arr = value.filter((v): v is string => typeof v === 'string')
+    return arr.length > 0 ? { [key]: arr } : {}
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(value)
+      if (Array.isArray(parsed)) {
+        const arr = parsed.filter((v): v is string => typeof v === 'string')
+        return { [key]: arr }
+      }
+    } catch {
+      // Not valid JSON; fall through to no-op.
+    }
+  }
+  return {}
+}
+
+/** The worker encodes `metadata` as a JSON object inside a string. */
+function optionalObject(value: unknown, key: string): Record<string, Readonly<Record<string, unknown>>> {
+  if (value !== null && typeof value === 'object' && !Array.isArray(value)) {
+    return { [key]: value as Record<string, unknown> }
+  }
+  if (typeof value === 'string') {
+    try {
+      const parsed: unknown = JSON.parse(value)
+      if (parsed !== null && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        return { [key]: parsed as Record<string, unknown> }
+      }
+    } catch {
+      // Not valid JSON; fall through to no-op.
+    }
+  }
+  return {}
 }
 
 function contentText(content: unknown): string | undefined {

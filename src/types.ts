@@ -20,16 +20,40 @@ export class MemError extends Error {
   }
 }
 
-/** One persisted observation returned by a memory query. */
+/**
+ * One persisted observation returned by a memory query. Mirrors the worker HTTP
+ * API's `/api/observations/batch` shape as closely as possible so tool output
+ * keeps parity with a direct API call: every field the worker returns is
+ * carried through (JSON-encoded array/object fields are decoded on input).
+ */
 export interface MemObservation {
   readonly id: number
   readonly title: string
+  readonly memorySessionId?: string
   readonly type?: string
   readonly project?: string
-  readonly createdAtEpoch?: number
+  readonly subtitle?: string
+  readonly text?: string
   readonly narrative?: string
+  readonly facts?: readonly string[]
   readonly concepts?: readonly string[]
-  readonly files?: readonly string[]
+  readonly filesRead?: readonly string[]
+  readonly filesModified?: readonly string[]
+  readonly metadata?: Readonly<Record<string, unknown>>
+  readonly createdAt?: string
+  readonly createdAtEpoch?: number
+  readonly promptNumber?: number
+  readonly discoveryTokens?: number
+  readonly contentHash?: string
+  readonly generatedByModel?: string
+  readonly relevanceCount?: number
+  readonly mergedIntoProject?: string
+  readonly agentType?: string
+  readonly agentId?: string
+  readonly syncedAt?: number
+  readonly originDeviceId?: string
+  readonly originLocalId?: string
+  readonly syncRev?: string
 }
 
 /** Free-text search query with optional filters. `platformSource` is an optional signal, never an enforced restriction. */
