@@ -16,16 +16,29 @@ It registers the model-facing tools `mem_search`, `mem_timeline`, `mem_get_obser
 
 ## Install
 
-**npm** (recommended — ships prebuilt `lib/`, no build permission needed):
+One-liner with `npx` (no global install — `npx` fetches the `dsh` launcher and
+`dsh plugin` forwards `add` to pnpm in the target profile):
+
+```sh
+npx -y @deepseek-ai/dsh plugin --profile demo add @bleed00/dsh-claude-mem
+```
+
+If you already have `dsh` on `PATH`, the same command without `npx`:
 
 ```sh
 dsh plugin --profile demo add @bleed00/dsh-claude-mem
 ```
 
+**npm** (recommended — ships prebuilt `lib/`, no build permission needed):
+
+```sh
+npx -y @deepseek-ai/dsh plugin --profile demo add @bleed00/dsh-claude-mem
+```
+
 **GitHub** (sources; runs a `prepare` build on first install):
 
 ```sh
-dsh plugin --profile demo add github:Bleed00/dsh-claude-mem
+npx -y @deepseek-ai/dsh plugin --profile demo add github:Bleed00/dsh-claude-mem
 ```
 
 A GitHub install fetches sources, not build output, so pnpm runs this package's `prepare` script to build from `src/`. pnpm ≥10 refuses to run a git dependency's `prepare` until it is allowlisted; the first `add` fails and points at the fix — copy the exact package key pnpm printed into the profile's `pnpm-workspace.yaml`:
