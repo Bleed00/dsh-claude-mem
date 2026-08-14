@@ -9,6 +9,7 @@
       name: '@bleed00/dsh-claude-mem'
       config:
         timeoutMs: 30000
+        # dedupe: true   # (default) collapse duplicate observations in query results
         injectContext: true
         ingest: false
         summarize: false

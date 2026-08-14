@@ -58,6 +58,7 @@ dsh plugin --profile demo add ./dsh-claude-mem
 |---|---|---|
 | `baseUrl` | `http://127.0.0.1:<37700 + uid % 100>` | Worker base URL. |
 | `timeoutMs` | `30000` | Per-request timeout (ms). |
+| `dedupe` | `true` | Collapse duplicate observations in query results (content fingerprint, never identity). |
 | `platformSource` | unset | Optional platform filter; omitted = search all memory. |
 | `project` | unset | Project name; defaults to the session cwd basename. |
 | `injectContext` | `true` | Inject session-start context. |
@@ -66,6 +67,18 @@ dsh plugin --profile demo add ./dsh-claude-mem
 | `toolFilter.names` | `read, write, edit, bash` | Tools observed when `ingest` is true. |
 
 Platform scoping is a **signal, never a restriction**: default requests are unfiltered, and `platformSource` only adds an opt-in filter.
+
+### Duplicate handling
+
+The worker can persist the same observation many times (a boilerplate "session
+initiated" record, or a re-run tool result) — identical content, different `id`.
+With `dedupe: true` (the default), query results collapse those copies: an
+observation's **content fingerprint** is built from `title` + `subtitle` +
+`text` + `narrative` + `facts` (normalized), so two entries that merely share a
+generated title but differ in narrative are kept. The first copy (lowest `id`)
+is retained. Structured results (`mem_get_observations`) are deduplicated by
+fingerprint; rendered index/text results are deduplicated by exact rendered
+row. Set `dedupe: false` to see the raw, unfiltered results.
 
 ### Example override in the profile's `cordis.patch.yml`
 

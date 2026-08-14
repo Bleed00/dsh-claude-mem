@@ -32,6 +32,23 @@ describe('WorkerClient.search', () => {
     expect(result.items).toMatchObject([{ id: 9, title: 'nine', narrative: 'full text', project: 'p' }])
   })
 
+  it('deduplicates the rendered index text (rows differing only by id)', async () => {
+    const text = '| #627 | 12:22 PM | ◆ | Media prompt processing session initiated | ~144 |\n| #671 | ″ | ◆ | Media prompt processing session initiated | ~144 |'
+    stubFetch({ content: [{ type: 'text', text }] })
+    const client = new WorkerClient({ ...limits, dedupe: true })
+    const result = await client.search({ query: 'q' })
+    expect(result.content).toContain('#627')
+    expect(result.content).not.toContain('#671')
+  })
+
+  it('leaves rendered text untouched when dedupe is disabled', async () => {
+    const text = '| #627 | 12:22 PM | ◆ | Media prompt processing session initiated | ~144 |\n| #671 | ″ | ◆ | Media prompt processing session initiated | ~144 |'
+    stubFetch({ content: [{ type: 'text', text }] })
+    const client = new WorkerClient({ ...limits, dedupe: false })
+    const result = await client.search({ query: 'q' })
+    expect(result.content).toBe(text)
+  })
+
   it('omits platformSource when not set (unfiltered)', async () => {
     const fetchMock = vi.fn(async (_url: unknown, _init?: unknown) =>
       ({ ok: true, status: 200, json: async () => ({}), text: async () => '{}' }) as Response)
@@ -62,6 +79,27 @@ describe('WorkerClient.getObservations', () => {
     const result = await client.getObservations({ ids: [650, 694] })
     expect(fetchMock.mock.calls[0]![1]).toMatchObject({ method: 'POST' })
     expect(result.items).toMatchObject([{ id: 650, title: 'nine', narrative: 'full' }])
+  })
+
+  it('deduplicates identical content (same narrative) when dedupe is true', async () => {
+    stubFetch([
+      { id: 627, title: 'Media prompt', narrative: 'same' },
+      { id: 671, title: 'Media prompt', narrative: 'same' },
+      { id: 715, title: 'Media prompt', narrative: 'distinct' },
+    ])
+    const client = new WorkerClient({ ...limits, dedupe: true })
+    const result = await client.getObservations({ ids: [627, 671, 715] })
+    expect(result.items.map(i => i.id)).toEqual([627, 715])
+  })
+
+  it('keeps raw results when dedupe is disabled', async () => {
+    stubFetch([
+      { id: 627, title: 'Media prompt', narrative: 'same' },
+      { id: 671, title: 'Media prompt', narrative: 'same' },
+    ])
+    const client = new WorkerClient({ ...limits, dedupe: false })
+    const result = await client.getObservations({ ids: [627, 671] })
+    expect(result.items.map(i => i.id)).toEqual([627, 671])
   })
 
   it('rejects an empty id list', async () => {

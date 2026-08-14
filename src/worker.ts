@@ -18,6 +18,7 @@ import type {
   MemSessionSummarizeRequest,
   MemTimelineRequest,
 } from './types.js'
+import { dedupeObservations, dedupeRenderedTable } from './dedupe.js'
 
 /** Resolved client limits. */
 export interface WorkerLimits {
@@ -25,6 +26,8 @@ export interface WorkerLimits {
   baseUrl: string
   /** Per-request timeout in milliseconds. */
   timeoutMs: number
+  /** Collapse duplicate observations in query results. Defaults to true. */
+  dedupe?: boolean
 }
 
 const MEM_TIMEOUT = 'MEM_TIMEOUT'
@@ -97,7 +100,7 @@ export class WorkerClient {
     const body: Record<string, unknown> = { ids: request.ids }
     if (request.project !== undefined) body.project = request.project
     const raw: unknown = await this.requestJson<unknown>('/api/observations/batch', { method: 'POST', body }, signal)
-    return { items: (Array.isArray(raw) ? raw : []).map(asObservation) }
+    return { items: this.finalizeItems((Array.isArray(raw) ? raw : []).map(asObservation)) }
   }
 
   async save(request: MemSaveRequest, signal?: AbortSignal): Promise<MemSaveResult> {
@@ -137,7 +140,23 @@ export class WorkerClient {
 
   private async query(path: string, query: URLSearchParams, signal?: AbortSignal): Promise<MemSearchResult> {
     const raw: unknown = await this.requestJson<unknown>(path, { method: 'GET', query }, signal)
-    return normalizeQueryResult(raw)
+    return this.finalizeResult(normalizeQueryResult(raw))
+  }
+
+  /** Apply dedup (when enabled) to a normalized result's items and rendered text. */
+  private finalizeResult(result: MemSearchResult): MemSearchResult {
+    if (this.limits.dedupe === false) return result
+    return {
+      items: dedupeObservations(result.items),
+      ...(result.content !== undefined
+        ? { content: dedupeRenderedTable(result.content) }
+        : {}),
+    }
+  }
+
+  /** Apply dedup (when enabled) to a raw item list. */
+  private finalizeItems(items: readonly MemObservation[]): readonly MemObservation[] {
+    return this.limits.dedupe === false ? items : dedupeObservations(items)
   }
 
   private async requestJson<T>(path: string, options: { method: 'GET' | 'POST'; query?: URLSearchParams; body?: unknown }, signal?: AbortSignal): Promise<T> {

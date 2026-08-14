@@ -38,6 +38,8 @@ export interface Config {
   baseUrl?: string
   /** Per-request timeout (ms). Defaults to 30000. */
   timeoutMs?: number
+  /** Collapse duplicate observations in query results (content fingerprint, not identity). Defaults to true. */
+  dedupe?: boolean
   /** Optional platform-scope filter (e.g. `"dsh"`). Omitted = unfiltered. */
   platformSource?: string
   /** Project name for context/session calls; defaults to the session cwd basename. */
@@ -55,6 +57,7 @@ export interface Config {
 export const Config: Schema<Config> = Schema.object({
   baseUrl: Schema.string().default(''),
   timeoutMs: Schema.number().default(30_000),
+  dedupe: Schema.boolean().default(true),
   platformSource: Schema.string().default(''),
   project: Schema.string().default(''),
   injectContext: Schema.boolean().default(true),
@@ -68,6 +71,7 @@ export const Config: Schema<Config> = Schema.object({
 type ResolvedConfig = Config & {
   baseUrl: string
   timeoutMs: number
+  dedupe: boolean
   platformSource: string
   project: string
   injectContext: boolean
@@ -84,6 +88,7 @@ export function apply(ctx: Context, config: Config): void {
   const worker = new WorkerClient({
     baseUrl: (resolved.baseUrl !== '' ? resolved.baseUrl : defaultBaseUrl()).replace(/\/+$/, ''),
     timeoutMs: resolved.timeoutMs,
+    dedupe: resolved.dedupe,
   })
 
   ctx.skills.register(memSearchSkill)
